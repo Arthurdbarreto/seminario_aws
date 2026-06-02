@@ -1,35 +1,127 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AWS IAM</title>
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-<nav>
-<h2>AWS Portal</h2>
-<div>
-<a href="index.html">Home</a>
-<a href="ec2.html">EC2</a>
-<a href="s3.html">S3</a>
-<a href="iam.html">IAM</a>
-<a href="cloud.html">Cloud</a>
-</div>
-</nav>
-<div class="page">
 <h1>AWS IAM</h1>
 
-<div class='panel'>
-<h2>Controle de Acesso</h2>
-<ul>
-<li>Administrador - acesso total</li>
-<li>Desenvolvedor - EC2 e S3</li>
-<li>Estagiário - leitura</li>
-</ul>
+<section class="panel hero-panel">
+
+    <h2>Identity and Access Management</h2>
+
+    <p>
+        Serviço responsável pelo gerenciamento de identidades,
+        usuários e permissões dentro da AWS.
+    </p>
+
+</section>
+
+<section class="grid">
+
+<div class="panel">
+
+<h2>👥 Estrutura de Usuários</h2>
+
+<div class="tree">
+
+<p>Administrador</p>
+<p>├── EC2</p>
+<p>├── S3</p>
+<p>├── IAM</p>
+
+<br>
+
+<p>Desenvolvedor</p>
+<p>├── EC2</p>
+<p>├── S3</p>
+
+<br>
+
+<p>Estagiário</p>
+<p>├── Somente leitura</p>
+
 </div>
 
 </div>
-<script src="js/main.js"></script>
-</body>
-</html>
+
+<div class="panel">
+
+<h2>🔒 Recursos de Segurança</h2>
+
+<ul>
+<li>MFA</li>
+<li>Policies</li>
+<li>Roles</li>
+<li>Groups</li>
+<li>Criptografia</li>
+</ul>
+
+</div>
+
+</section>
+
+<section class="panel">
+
+<h2>📱 MFA</h2>
+
+<div class="flow">
+
+<div>Senha</div>
+
+<span>+</span>
+
+<div>Authenticator</div>
+
+<span>+</span>
+
+<div>Código</div>
+
+</div>
+
+</section>
+
+<section class="panel">
+
+<h2>📄 Exemplo de Política</h2>
+
+<pre>
+{
+ "Effect": "Allow",
+ "Action": [
+   "s3:GetObject"
+ ],
+ "Resource": "*"
+}
+</pre>
+
+</section>
+
+<section class="panel">
+
+<h2>🏢 Exemplo Empresarial</h2>
+
+<table>
+
+<tr>
+<th>Usuário</th>
+<th>Permissão</th>
+</tr>
+
+<tr>
+<td>Administrador</td>
+<td>Total</td>
+</tr>
+
+<tr>
+<td>Desenvolvedor</td>
+<td>EC2 + S3</td>
+</tr>
+
+<tr>
+<td>RH</td>
+<td>Documentos</td>
+</tr>
+
+<tr>
+<td>Estagiário</td>
+<td>Leitura</td>
+</tr>
+
+</table>
+
+</section>
