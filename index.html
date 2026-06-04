@@ -1,19 +1,1074 @@
-<!DOCTYPE html><html lang='pt-BR'><head>
-<meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>AWS Portal</title><link rel='stylesheet' href='css/style.css'></head><body>
-<nav>
-<a href='index.html'>Home</a>
-<a href='ec2.html'>EC2</a>
-<a href='s3.html'>S3</a>
-<a href='iam.html'>IAM</a>
-<a href='cloud.html'>Cloud</a>
-</nav>
-<div class='page'>
-<div class='hero'><h1>AWS Learning Portal</h1><p>Projeto para apresentação de Computação em Nuvem</p></div>
-<div class='grid'>
-<div class='card'><h2>EC2</h2><p>Máquinas virtuais na nuvem.</p></div>
-<div class='card'><h2>S3</h2><p>Armazenamento escalável.</p></div>
-<div class='card'><h2>IAM</h2><p>Controle de acesso e segurança.</p></div>
-<div class='card'><h2>Cloud</h2><p>Fundamentos da computação em nuvem.</p></div>
-</div>
-</div></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Learning Portal</title>
+  <style>
+    :root {
+      --aws-orange: #ff9900;
+      --aws-orange-soft: rgba(255, 153, 0, 0.18);
+      --aws-blue: #232f3e;
+      --bg: #0f141c;
+      --bg-deep: #070a0f;
+      --panel: #151d28;
+      --panel-soft: #1d2634;
+      --line: #2c394b;
+      --text: #f2f6fb;
+      --muted: #9aa8ba;
+      --green: #39d98a;
+      --cyan: #55d6ff;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(85, 214, 255, 0.12), transparent 30rem),
+        radial-gradient(circle at top left, rgba(255, 153, 0, 0.14), transparent 34rem),
+        linear-gradient(135deg, var(--bg-deep) 0%, var(--bg) 58%, #101827 100%);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(44, 57, 75, 0.78);
+      background: rgba(7, 10, 15, 0.76);
+      backdrop-filter: blur(16px);
+      transition: background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .navbar.scrolled {
+      border-color: rgba(255, 153, 0, 0.22);
+      background: rgba(7, 10, 15, 0.94);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-inner {
+      width: min(1180px, calc(100% - 2rem));
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 900;
+    }
+
+    .brand-mark {
+      width: 46px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 153, 0, 0.38);
+      border-radius: 8px;
+      color: #081019;
+      background: var(--aws-orange);
+      font-size: 0.86rem;
+      letter-spacing: 0;
+      box-shadow: 0 0 22px rgba(255, 153, 0, 0.28);
+    }
+
+    .brand span:last-child {
+      color: #dce5f1;
+      font-size: 0.95rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 800;
+      padding: 0.55rem 0.9rem;
+      border-radius: 6px;
+      transition: color 180ms ease, background 180ms ease, transform 180ms ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--text);
+      background: var(--panel-soft);
+      transform: translateY(-1px);
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 7rem 0 4rem;
+    }
+
+    .hero {
+      min-height: calc(100vh - 7rem);
+      display: grid;
+      align-items: center;
+      padding: 2rem 0;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-bottom: 1.1rem;
+      padding: 0.35rem 0.7rem;
+      border: 1px solid rgba(255, 153, 0, 0.34);
+      border-radius: 999px;
+      color: #ffd293;
+      background: rgba(255, 153, 0, 0.09);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 780px;
+      font-size: clamp(3.1rem, 7vw, 6.2rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 680px;
+      margin-top: 1.15rem;
+      color: #d6deea;
+      font-size: clamp(1.08rem, 2vw, 1.42rem);
+    }
+
+    .primary-btn,
+    .service-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      min-height: 44px;
+      margin-top: 1.55rem;
+      padding: 0.78rem 1.05rem;
+      border: 1px solid rgba(255, 153, 0, 0.5);
+      border-radius: 8px;
+      color: #081019;
+      background: var(--aws-orange);
+      text-decoration: none;
+      font-weight: 900;
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+      cursor: pointer;
+    }
+
+    .primary-btn:hover,
+    .service-btn:hover {
+      transform: translateY(-2px);
+      background: #ffad33;
+      box-shadow: 0 18px 34px rgba(255, 153, 0, 0.25);
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 430px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(255, 153, 0, 0.14), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent),
+        #121a25;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      inset: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+    }
+
+    .console-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.1rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(35, 47, 62, 0.72);
+    }
+
+    .console-title {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .status-pill {
+      color: #c8f7df;
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    .cloud-diagram {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      padding: 1.5rem;
+    }
+
+    .mini-card {
+      min-height: 118px;
+      padding: 1rem;
+      border: 1px solid rgba(44, 57, 75, 0.82);
+      border-radius: 8px;
+      background: rgba(15, 20, 28, 0.84);
+      transition: transform 180ms ease, border-color 180ms ease;
+    }
+
+    .mini-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 153, 0, 0.5);
+    }
+
+    .mini-card strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.15rem;
+    }
+
+    .mini-card span {
+      display: block;
+      margin-top: 0.4rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    section {
+      margin-top: 1.3rem;
+      padding: 2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(21, 29, 40, 0.88);
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.22);
+      scroll-margin-top: 96px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    h2 {
+      font-size: clamp(1.45rem, 2.7vw, 2.2rem);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .tag {
+      flex: 0 0 auto;
+      color: var(--aws-orange);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      min-height: 150px;
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+        #121a25;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .stat-card:hover,
+    .service-card:hover,
+    .benefit-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255, 153, 0, 0.56);
+      background: #172232;
+    }
+
+    .stat-value {
+      display: block;
+      color: var(--aws-orange);
+      font-size: clamp(2.2rem, 4vw, 3.1rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .stat-card p {
+      margin-top: 0.75rem;
+      color: #dce5f1;
+      font-weight: 800;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.4rem;
+    }
+
+    .service-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 440px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+        #121a25;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .service-media {
+      min-height: 180px;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--line);
+      background: #0f1722;
+    }
+
+    .service-media img {
+      width: min(100%, 210px);
+      height: 150px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .service-body {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      padding: 1.15rem;
+    }
+
+    .service-body h3 {
+      font-size: 1.25rem;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .service-body p {
+      margin-top: 0.65rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .service-btn {
+      width: 100%;
+      margin-top: auto;
+      color: var(--text);
+      background: transparent;
+    }
+
+    .service-btn:hover {
+      color: #081019;
+      background: var(--aws-orange);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: minmax(0, 500px);
+      justify-content: center;
+      align-items: center;
+      gap: 0.55rem;
+      margin-top: 1.5rem;
+    }
+
+    .flow-step {
+      min-height: 96px;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(85, 214, 255, 0.1), transparent),
+        #111925;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 900;
+      transition: transform 180ms ease, border-color 180ms ease;
+    }
+
+    .flow-step:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 153, 0, 0.56);
+    }
+
+    .flow-arrow {
+      color: var(--aws-orange);
+      font-size: 1.7rem;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 1.4rem;
+      overflow: hidden;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101722;
+    }
+
+    th,
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+
+    th {
+      color: var(--aws-orange);
+      background: #151d29;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    td {
+      color: #dce5f1;
+      font-weight: 800;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.4rem;
+    }
+
+    .benefit-card {
+      min-height: 122px;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #111925;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .benefit-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255, 153, 0, 0.32);
+      border-radius: 8px;
+      color: var(--aws-orange);
+      background: var(--aws-orange-soft);
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .benefit-card h3 {
+      color: #dce5f1;
+      font-size: 1.05rem;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .highlight {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+      align-items: center;
+      gap: 1.5rem;
+      border-color: rgba(57, 217, 138, 0.38);
+      background:
+        linear-gradient(135deg, rgba(57, 217, 138, 0.1), transparent 42%),
+        rgba(21, 29, 40, 0.92);
+    }
+
+    .highlight p {
+      max-width: 720px;
+      margin-top: 0.8rem;
+      color: #d7dfeb;
+      font-size: 1.08rem;
+    }
+
+    .corp-visual {
+      display: grid;
+      gap: 0.8rem;
+      padding: 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101722;
+    }
+
+    .corp-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      min-height: 58px;
+      padding: 0.8rem;
+      border: 1px solid rgba(44, 57, 75, 0.8);
+      border-radius: 8px;
+      color: #dce5f1;
+      font-weight: 800;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .corp-row span:last-child {
+      color: var(--green);
+      font-size: 0.82rem;
+    }
+
+    footer {
+      margin-top: 1.3rem;
+      padding: 2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(7, 10, 15, 0.9);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 1.5rem;
+    }
+
+    .footer-title {
+      color: var(--aws-orange);
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+
+    .footer-text {
+      margin-top: 0.5rem;
+      color: #dce5f1;
+      font-weight: 800;
+    }
+
+    .members {
+      display: grid;
+      gap: 0.45rem;
+      list-style: none;
+    }
+
+    .members li {
+      color: #dce5f1;
+      font-weight: 700;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 650ms ease, transform 650ms ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1020px) {
+      .hero-grid,
+      .highlight {
+        grid-template-columns: 1fr;
+      }
+
+      .services-grid,
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .nav-inner {
+        min-height: auto;
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 0.8rem 0;
+      }
+
+      .nav-links {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 0.1rem;
+      }
+
+      .page {
+        padding-top: 8.8rem;
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      section,
+      footer {
+        padding: 1rem;
+      }
+
+      .benefits-grid,
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 1rem, 1180px);
+      }
+
+      .services-grid,
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual {
+        min-height: auto;
+      }
+
+      .cloud-diagram {
+        grid-template-columns: 1fr;
+      }
+
+      .service-card,
+      .stat-card {
+        min-height: auto;
+      }
+
+      th,
+      td {
+        padding: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar" aria-label="Navegação principal">
+    <div class="nav-inner">
+      <a class="brand" href="index.html" aria-label="AWS Learning Portal">
+        <span class="brand-mark">AWS</span>
+        <span>Learning Portal</span>
+      </a>
+      <div class="nav-links">
+        <a class="active" href="index.html">Home</a>
+        <a href="ec2.html">EC2</a>
+        <a href="s3.html">S3</a>
+        <a href="iam.html">IAM</a>
+        <a href="cloud.html">Cloud</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <header class="hero">
+      <div class="hero-grid fade-in">
+        <div>
+          <p class="eyebrow">Portal Educacional AWS</p>
+          <h1>AWS Learning Portal</h1>
+          <p class="subtitle">
+            Explorando Computação em Nuvem, Segurança, Armazenamento e Infraestrutura na AWS
+          </p>
+          <a class="primary-btn" href="#servicos">Explorar Serviços</a>
+        </div>
+
+        <div class="hero-visual" aria-label="Painel visual inspirado no AWS Console">
+          <div class="console-top">
+            <span class="console-title">AWS Console Overview</span>
+            <span class="status-pill">ONLINE</span>
+          </div>
+          <div class="cloud-diagram">
+            <div class="mini-card">
+              <strong>EC2</strong>
+              <span>Computação elástica</span>
+            </div>
+            <div class="mini-card">
+              <strong>S3</strong>
+              <span>Objetos escaláveis</span>
+            </div>
+            <div class="mini-card">
+              <strong>IAM</strong>
+              <span>Identidade e acesso</span>
+            </div>
+            <div class="mini-card">
+              <strong>Cloud</strong>
+              <span>Fundamentos AWS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="fade-in" aria-labelledby="dashboard">
+      <div class="section-header">
+        <h2 id="dashboard">Dashboard AWS</h2>
+        <span class="tag">Indicadores</span>
+      </div>
+      <div class="stats-grid">
+        <article class="stat-card advanced-card">
+          <strong class="stat-value" data-count="240" data-suffix="+">0</strong>
+          <p>Serviços AWS</p>
+        </article>
+        <article class="stat-card advanced-card">
+          <strong class="stat-value" data-count="31" data-suffix="+">0</strong>
+          <p>Regiões Globais</p>
+        </article>
+        <article class="stat-card advanced-card">
+          <strong class="stat-value" data-count="99.99" data-suffix="%">0</strong>
+          <p>Disponibilidade</p>
+        </article>
+        <article class="stat-card advanced-card">
+          <strong class="stat-value" data-text="Milhões">0</strong>
+          <p>de Clientes</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="servicos" class="fade-in" aria-labelledby="servicos-title">
+      <div class="section-header">
+        <h2 id="servicos-title">Serviços Principais</h2>
+        <span class="tag">Exploração</span>
+      </div>
+      <div class="services-grid">
+        <article class="service-card advanced-card">
+          <div class="service-media">
+            <img src="ec_aws_gif.gif" alt="GIF do serviço Amazon EC2">
+          </div>
+          <div class="service-body">
+            <h3>Amazon EC2</h3>
+            <p>Computação elástica baseada em máquinas virtuais.</p>
+            <a class="service-btn" href="ec2.html">Explorar EC2</a>
+          </div>
+        </article>
+
+        <article class="service-card advanced-card">
+          <div class="service-media">
+            <img src="aws_s3_gif.gif" alt="GIF do serviço Amazon S3">
+          </div>
+          <div class="service-body">
+            <h3>Amazon S3</h3>
+            <p>Armazenamento de objetos altamente escalável.</p>
+            <a class="service-btn" href="s3.html">Explorar S3</a>
+          </div>
+        </article>
+
+        <article class="service-card advanced-card">
+          <div class="service-media">
+            <img src="aws_iam_gif.gif" alt="GIF do serviço AWS IAM">
+          </div>
+          <div class="service-body">
+            <h3>AWS IAM</h3>
+            <p>Gerenciamento de identidades e permissões.</p>
+            <a class="service-btn" href="iam.html">Explorar IAM</a>
+          </div>
+        </article>
+
+        <article class="service-card advanced-card">
+          <div class="service-media">
+            <img src="aws_cloud_gif.gif" alt="GIF sobre Cloud Computing">
+          </div>
+          <div class="service-body">
+            <h3>Cloud Computing</h3>
+            <p>Fundamentos da computação em nuvem.</p>
+            <a class="service-btn" href="cloud.html">Explorar Cloud</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="fade-in" aria-labelledby="arquitetura">
+      <div class="section-header">
+        <h2 id="arquitetura">Como os Serviços Trabalham Juntos</h2>
+        <span class="tag">Arquitetura visual</span>
+      </div>
+      <div class="flow" aria-label="Fluxograma de integração entre serviços AWS">
+        <div class="flow-step">Usuário</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Internet</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">EC2</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">IAM</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">S3</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Aplicação AWS</div>
+      </div>
+    </section>
+
+    <section class="fade-in" aria-labelledby="comparacao">
+      <div class="section-header">
+        <h2 id="comparacao">Comparação de Serviços</h2>
+        <span class="tag">Resumo</span>
+      </div>
+      <table aria-label="Comparação dos serviços apresentados">
+        <thead>
+          <tr>
+            <th>Serviço</th>
+            <th>Categoria</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>EC2</td>
+            <td>Computação</td>
+          </tr>
+          <tr>
+            <td>S3</td>
+            <td>Armazenamento</td>
+          </tr>
+          <tr>
+            <td>IAM</td>
+            <td>Segurança</td>
+          </tr>
+          <tr>
+            <td>Cloud</td>
+            <td>Conceitos Fundamentais</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="fade-in" aria-labelledby="beneficios">
+      <div class="section-header">
+        <h2 id="beneficios">Benefícios AWS</h2>
+        <span class="tag">Valor</span>
+      </div>
+      <div class="benefits-grid">
+        <article class="benefit-card advanced-card">
+          <div class="benefit-icon">↗</div>
+          <h3>Escalabilidade</h3>
+        </article>
+        <article class="benefit-card advanced-card">
+          <div class="benefit-icon">▣</div>
+          <h3>Segurança</h3>
+        </article>
+        <article class="benefit-card advanced-card">
+          <div class="benefit-icon">✓</div>
+          <h3>Disponibilidade</h3>
+        </article>
+        <article class="benefit-card advanced-card">
+          <div class="benefit-icon">⇄</div>
+          <h3>Elasticidade</h3>
+        </article>
+        <article class="benefit-card advanced-card">
+          <div class="benefit-icon">$</div>
+          <h3>Redução de Custos</h3>
+        </article>
+        <article class="benefit-card advanced-card">
+          <div class="benefit-icon">◎</div>
+          <h3>Cobertura Global</h3>
+        </article>
+      </div>
+    </section>
+
+    <section class="highlight fade-in" aria-labelledby="aprender">
+      <div>
+        <div class="section-header">
+          <h2 id="aprender">Por que aprender AWS?</h2>
+          <span class="tag">Carreira e mercado</span>
+        </div>
+        <p>
+          A AWS é líder mundial em computação em nuvem e é utilizada por startups,
+          empresas e organizações de grande porte.
+        </p>
+      </div>
+      <div class="corp-visual" aria-label="Visual corporativo sobre adoção da AWS">
+        <div class="corp-row">
+          <span>Startups</span>
+          <span>Escala rápida</span>
+        </div>
+        <div class="corp-row">
+          <span>Empresas</span>
+          <span>Operação segura</span>
+        </div>
+        <div class="corp-row">
+          <span>Organizações</span>
+          <span>Presença global</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="fade-in">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-title">Projeto Acadêmico</div>
+          <p class="footer-text">Disciplina: Computação em Nuvem</p>
+          <p class="footer-text">Tema: Amazon Web Services (AWS)</p>
+        </div>
+        <div>
+          <div class="footer-title">Integrantes</div>
+          <ul class="members">
+            <li>Arthur da Silva Barreto</li>
+            <li>Filipe Gonçalves do Rego Barros</li>
+            <li>Gustavo Henrique Cantaruti Scalise</li>
+            <li>Marcos Rodrigues Bino dos Santos</li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const navbar = document.querySelector(".navbar");
+    const fadeItems = document.querySelectorAll(".fade-in");
+    const counters = document.querySelectorAll(".stat-value");
+    let countersStarted = false;
+
+    function updateNavbar() {
+      navbar.classList.toggle("scrolled", window.scrollY > 24);
+    }
+
+    function animateCounter(counter) {
+      const text = counter.dataset.text;
+
+      if (text) {
+        setTimeout(() => {
+          counter.textContent = text;
+        }, 240);
+        return;
+      }
+
+      const target = Number(counter.dataset.count);
+      const suffix = counter.dataset.suffix || "";
+      const decimals = String(target).includes(".") ? 2 : 0;
+      const duration = 1300;
+      const start = performance.now();
+
+      function tick(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = target * eased;
+        counter.textContent = value.toFixed(decimals) + suffix;
+
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          counter.textContent = target.toFixed(decimals) + suffix;
+        }
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    function startCounters() {
+      if (countersStarted) {
+        return;
+      }
+
+      countersStarted = true;
+      counters.forEach(animateCounter);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
+    }, { threshold: 0.16 });
+
+    fadeItems.forEach((item) => observer.observe(item));
+
+    const statsObserver = new IntersectionObserver((entries) => {
+      const isVisible = entries.some((entry) => entry.isIntersecting);
+
+      if (isVisible) {
+        startCounters();
+      }
+    }, { threshold: 0.35 });
+
+    const dashboard = document.querySelector("#dashboard");
+    if (dashboard) {
+      statsObserver.observe(dashboard);
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const target = document.querySelector(link.getAttribute("href"));
+
+        if (target) {
+          event.preventDefault();
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+
+    document.querySelectorAll(".advanced-card").forEach((card) => {
+      card.addEventListener("mousemove", (event) => {
+        const rect = card.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width - 0.5) * 8;
+        const y = ((event.clientY - rect.top) / rect.height - 0.5) * -8;
+        card.style.transform = `translateY(-6px) rotateX(${y}deg) rotateY(${x}deg)`;
+      });
+
+      card.addEventListener("mouseleave", () => {
+        card.style.transform = "";
+      });
+    });
+
+    updateNavbar();
+    window.addEventListener("load", () => {
+      setTimeout(startCounters, 250);
+    });
+    window.addEventListener("scroll", updateNavbar, { passive: true });
+  </script>
+</body>
+</html>

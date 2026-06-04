@@ -1,15 +1,676 @@
-<!DOCTYPE html><html lang='pt-BR'><head>
-<meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>EC2</title><link rel='stylesheet' href='css/style.css'></head><body>
-<nav>
-<a href='index.html'>Home</a>
-<a href='ec2.html'>EC2</a>
-<a href='s3.html'>S3</a>
-<a href='iam.html'>IAM</a>
-<a href='cloud.html'>Cloud</a>
-</nav>
-<div class='page'>
-<h1>Amazon EC2</h1>
-<div class='panel'><h2>O que é?</h2><p>Serviço de computação elástica para criação de máquinas virtuais.</p></div>
-<div class='panel'><h2>Exemplo</h2><p>Instância t2.micro hospedando um site institucional.</p></div>
-</div></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon EC2</title>
+  <style>
+    :root {
+      --aws-orange: #ff9900;
+      --aws-orange-soft: rgba(255, 153, 0, 0.18);
+      --bg: #0f141c;
+      --bg-deep: #080b10;
+      --panel: #161d28;
+      --panel-soft: #1d2633;
+      --line: #2c394b;
+      --text: #f2f6fb;
+      --muted: #9aa8ba;
+      --green: #39d98a;
+      --blue: #53b5ff;
+      --red: #ff6b6b;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 153, 0, 0.12), transparent 32rem),
+        linear-gradient(135deg, var(--bg-deep) 0%, var(--bg) 54%, #111827 100%);
+      line-height: 1.6;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.9rem 1rem;
+      background: rgba(8, 11, 16, 0.86);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 0.55rem 0.9rem;
+      border-radius: 6px;
+      transition: color 180ms ease, background 180ms ease;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: var(--text);
+      background: var(--panel-soft);
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
+    }
+
+    .hero {
+      min-height: 82vh;
+      display: grid;
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem 0;
+    }
+
+    .hero-content {
+      display: grid;
+      justify-items: center;
+      gap: 1.6rem;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      width: max-content;
+      margin: 0 auto 1.1rem;
+      padding: 0.35rem 0.7rem;
+      border: 1px solid rgba(255, 153, 0, 0.34);
+      border-radius: 999px;
+      color: #ffd293;
+      background: rgba(255, 153, 0, 0.09);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 0 auto;
+      font-size: clamp(2.8rem, 7vw, 5.7rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 630px;
+      margin: 1.1rem auto 0;
+      color: #d6deea;
+      font-size: clamp(1.1rem, 2vw, 1.45rem);
+    }
+
+    .hero-gif {
+      display: grid;
+      place-items: center;
+      width: min(100%, 620px);
+      min-height: 340px;
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
+        var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-gif img {
+      display: block;
+      width: min(100%, 480px);
+      height: auto;
+      border-radius: 6px;
+    }
+
+    section {
+      margin-top: 1.3rem;
+      padding: 2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(22, 29, 40, 0.86);
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.22);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    h2 {
+      font-size: clamp(1.45rem, 2.7vw, 2.2rem);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .tag {
+      flex: 0 0 auto;
+      color: var(--aws-orange);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 900px;
+      color: #d7dfeb;
+      font-size: 1.08rem;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: minmax(0, 480px);
+      justify-content: center;
+      align-items: center;
+      gap: 0.55rem;
+      margin-top: 1.5rem;
+    }
+
+    .flow-step {
+      min-height: 116px;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(83, 181, 255, 0.1), transparent),
+        #111925;
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .flow-arrow {
+      display: block;
+      color: var(--aws-orange);
+      font-size: 1.7rem;
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.4rem;
+    }
+
+    .grid.use-cases {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .card {
+      min-height: 150px;
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+        #121a25;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 153, 0, 0.56);
+      background: #172232;
+    }
+
+    .card-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 0.85rem;
+      border: 1px solid rgba(255, 153, 0, 0.32);
+      border-radius: 8px;
+      color: var(--aws-orange);
+      background: var(--aws-orange-soft);
+      font-size: 1.15rem;
+      font-weight: 900;
+    }
+
+    .card h3 {
+      font-size: 1.05rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .elastic-panel {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .elastic-meter {
+      display: grid;
+      gap: 0.8rem;
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101722;
+    }
+
+    .meter-row {
+      display: grid;
+      gap: 0.35rem;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .meter-track {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #263243;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--aws-orange), #ffd166);
+    }
+
+    .dashboard {
+      overflow: hidden;
+      padding: 0;
+      background: #0d121a;
+    }
+
+    .dashboard-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--line);
+      background: #151d29;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 0.45rem;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--red);
+    }
+
+    .dot:nth-child(2) {
+      background: var(--aws-orange);
+    }
+
+    .dot:nth-child(3) {
+      background: var(--green);
+    }
+
+    .dashboard-title {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--line);
+    }
+
+    .metric {
+      min-height: 126px;
+      padding: 1.1rem;
+      background: #111925;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 0.42rem;
+      color: var(--text);
+      font-size: 1.25rem;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--green);
+    }
+
+    .status::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(57, 217, 138, 0.72);
+    }
+
+    .progress {
+      display: grid;
+      gap: 0.55rem;
+      margin-top: 0.65rem;
+    }
+
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.9rem;
+      margin-top: 1.4rem;
+    }
+
+    .benefit {
+      min-height: 86px;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #111925;
+      color: #dce5f1;
+      font-weight: 800;
+    }
+
+    .benefit::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: var(--aws-orange);
+      box-shadow: 0 0 18px rgba(255, 153, 0, 0.5);
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        min-height: auto;
+      }
+
+      .elastic-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .grid,
+      .grid.use-cases,
+      .benefits,
+      .dashboard-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      nav {
+        justify-content: flex-start;
+        overflow-x: auto;
+      }
+
+      .page {
+        width: min(100% - 1rem, 1180px);
+        padding-top: 1rem;
+      }
+
+      section,
+      .hero-gif {
+        padding: 1rem;
+      }
+
+      .grid,
+      .grid.use-cases,
+      .benefits,
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .metric,
+      .card {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav aria-label="Navegação principal">
+    <a href="index.html">Home</a>
+    <a class="active" href="ec2.html">EC2</a>
+    <a href="s3.html">S3</a>
+    <a href="iam.html">IAM</a>
+    <a href="cloud.html">Cloud</a>
+  </nav>
+
+  <main class="page">
+    <header class="hero">
+      <div class="hero-content">
+        <div>
+          <p class="eyebrow">AWS Compute Service</p>
+          <h1>Amazon EC2 (Elastic Compute Cloud)</h1>
+          <p class="subtitle">Capacidade de computação segura e escalável na nuvem.</p>
+        </div>
+
+        <div class="hero-gif" aria-label="Animação sobre Amazon EC2">
+          <img src="ec_aws_gif.gif" alt="GIF educacional sobre o Amazon EC2">
+        </div>
+      </div>
+    </header>
+
+    <section aria-labelledby="o-que-e">
+      <div class="section-header">
+        <h2 id="o-que-e">O que é EC2?</h2>
+        <span class="tag">Visão geral</span>
+      </div>
+      <p class="lead">
+        O Amazon EC2 é um serviço da AWS que fornece servidores virtuais chamados Instâncias.
+        Ele permite executar aplicações, hospedar sites e processar dados sem a necessidade
+        de adquirir servidores físicos.
+      </p>
+    </section>
+
+    <section aria-labelledby="como-funciona">
+      <div class="section-header">
+        <h2 id="como-funciona">Como Funciona</h2>
+        <span class="tag">Fluxo básico</span>
+      </div>
+      <div class="flow" aria-label="Fluxograma do funcionamento do EC2">
+        <div class="flow-step">Usuário</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Internet</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Instância EC2</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Aplicação</div>
+      </div>
+    </section>
+
+    <section aria-labelledby="caracteristicas">
+      <div class="section-header">
+        <h2 id="caracteristicas">Características Principais</h2>
+        <span class="tag">Recursos</span>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-icon">01</div>
+          <h3>Instâncias Virtuais</h3>
+        </article>
+        <article class="card">
+          <div class="card-icon">02</div>
+          <h3>Auto Scaling</h3>
+        </article>
+        <article class="card">
+          <div class="card-icon">03</div>
+          <h3>Elasticidade</h3>
+        </article>
+        <article class="card">
+          <div class="card-icon">04</div>
+          <h3>Alta Disponibilidade</h3>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="elastic">
+      <div class="elastic-panel">
+        <div>
+          <div class="section-header">
+            <h2 id="elastic">O Significado de Elastic</h2>
+            <span class="tag">Demanda</span>
+          </div>
+          <p class="lead">
+            O termo Elastic refere-se à capacidade de aumentar ou reduzir recursos
+            automaticamente conforme a demanda.
+          </p>
+        </div>
+
+        <div class="elastic-meter" aria-label="Representação visual de elasticidade">
+          <div class="meter-row">
+            <div class="meter-label"><span>Baixa demanda</span><span>30%</span></div>
+            <div class="meter-track"><div class="meter-fill" style="width: 30%;"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-label"><span>Pico de acesso</span><span>82%</span></div>
+            <div class="meter-track"><div class="meter-fill" style="width: 82%;"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-label"><span>Ajuste automático</span><span>60%</span></div>
+            <div class="meter-track"><div class="meter-fill" style="width: 60%;"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard" aria-labelledby="dashboard">
+      <div class="dashboard-top">
+        <div class="window-controls" aria-hidden="true">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <h2 id="dashboard" class="dashboard-title">Dashboard Simulado</h2>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="metric">
+          <span>Instância</span>
+          <strong>WebServer-01</strong>
+        </div>
+        <div class="metric">
+          <span>Sistema Operacional</span>
+          <strong>Amazon Linux</strong>
+        </div>
+        <div class="metric">
+          <span>Tipo</span>
+          <strong>t2.micro</strong>
+        </div>
+        <div class="metric">
+          <span>Status</span>
+          <strong class="status">ONLINE</strong>
+        </div>
+        <div class="metric">
+          <span>CPU</span>
+          <strong>25%</strong>
+          <div class="progress">
+            <div class="meter-track"><div class="meter-fill" style="width: 25%;"></div></div>
+          </div>
+        </div>
+        <div class="metric">
+          <span>RAM</span>
+          <strong>45%</strong>
+          <div class="progress">
+            <div class="meter-track"><div class="meter-fill" style="width: 45%;"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="casos-de-uso">
+      <div class="section-header">
+        <h2 id="casos-de-uso">Casos de Uso</h2>
+        <span class="tag">Aplicações</span>
+      </div>
+      <div class="grid use-cases">
+        <article class="card">
+          <div class="card-icon">W</div>
+          <h3>Hospedagem de Sites</h3>
+        </article>
+        <article class="card">
+          <div class="card-icon">API</div>
+          <h3>APIs</h3>
+        </article>
+        <article class="card">
+          <div class="card-icon">ERP</div>
+          <h3>Sistemas Empresariais</h3>
+        </article>
+        <article class="card">
+          <div class="card-icon">DB</div>
+          <h3>Processamento de Dados</h3>
+        </article>
+        <article class="card">
+          <div class="card-icon">QA</div>
+          <h3>Ambientes de Teste</h3>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="beneficios">
+      <div class="section-header">
+        <h2 id="beneficios">Benefícios</h2>
+        <span class="tag">Valor</span>
+      </div>
+      <div class="benefits">
+        <div class="benefit">Escalabilidade</div>
+        <div class="benefit">Flexibilidade</div>
+        <div class="benefit">Redução de Custos</div>
+        <div class="benefit">Disponibilidade Global</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,20 +1,706 @@
-<!DOCTYPE html><html lang='pt-BR'><head>
-<meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
-<title>IAM</title><link rel='stylesheet' href='css/style.css'></head><body>
-<nav>
-<a href='index.html'>Home</a>
-<a href='ec2.html'>EC2</a>
-<a href='s3.html'>S3</a>
-<a href='iam.html'>IAM</a>
-<a href='cloud.html'>Cloud</a>
-</nav>
-<div class='page'>
-<h1>AWS IAM</h1>
-<div class='panel'><h2>Gerenciamento de Identidade</h2><p>Controla usuários, grupos, roles e permissões.</p></div>
-<div class='panel'><h2>Exemplo</h2>
-<table><tr><th>Usuário</th><th>Permissão</th></tr>
-<tr><td>Admin</td><td>Total</td></tr>
-<tr><td>Dev</td><td>EC2 e S3</td></tr>
-<tr><td>Estagiário</td><td>Leitura</td></tr>
-</table></div>
-</div></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS IAM</title>
+  <style>
+    :root {
+      --aws-orange: #ff9900;
+      --aws-orange-soft: rgba(255, 153, 0, 0.18);
+      --bg: #0f141c;
+      --bg-deep: #070a0f;
+      --panel: #151d28;
+      --panel-soft: #1d2634;
+      --line: #2c394b;
+      --text: #f2f6fb;
+      --muted: #9aa8ba;
+      --green: #39d98a;
+      --blue: #53b5ff;
+      --red: #ff6b6b;
+      --purple: #b18cff;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(83, 181, 255, 0.12), transparent 31rem),
+        radial-gradient(circle at top left, rgba(255, 153, 0, 0.12), transparent 34rem),
+        linear-gradient(135deg, var(--bg-deep) 0%, var(--bg) 58%, #101827 100%);
+      line-height: 1.6;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.9rem 1rem;
+      background: rgba(7, 10, 15, 0.86);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 0.55rem 0.9rem;
+      border-radius: 6px;
+      transition: color 180ms ease, background 180ms ease;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: var(--text);
+      background: var(--panel-soft);
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
+    }
+
+    .hero {
+      min-height: 82vh;
+      display: grid;
+      place-items: center;
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    .hero-content {
+      display: grid;
+      justify-items: center;
+      gap: 1.6rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      margin-bottom: 1.1rem;
+      padding: 0.35rem 0.7rem;
+      border: 1px solid rgba(255, 153, 0, 0.34);
+      border-radius: 999px;
+      color: #ffd293;
+      background: rgba(255, 153, 0, 0.09);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 820px;
+      margin: 0 auto;
+      font-size: clamp(3.2rem, 8vw, 6.4rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 720px;
+      margin: 1.1rem auto 0;
+      color: #d6deea;
+      font-size: clamp(1.1rem, 2vw, 1.45rem);
+      font-weight: 700;
+    }
+
+    .hero-gif {
+      display: grid;
+      place-items: center;
+      width: min(100%, 660px);
+      min-height: 340px;
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
+        var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-gif img {
+      display: block;
+      width: min(100%, 520px);
+      height: auto;
+      border-radius: 6px;
+    }
+
+    section {
+      margin-top: 1.3rem;
+      padding: 2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(21, 29, 40, 0.88);
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.22);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    h2 {
+      font-size: clamp(1.45rem, 2.7vw, 2.2rem);
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .tag {
+      flex: 0 0 auto;
+      color: var(--aws-orange);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 920px;
+      color: #d7dfeb;
+      font-size: 1.08rem;
+    }
+
+    .highlight {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      align-items: center;
+      gap: 1.2rem;
+      border-color: rgba(255, 153, 0, 0.42);
+      background:
+        linear-gradient(135deg, rgba(255, 153, 0, 0.14), transparent),
+        rgba(21, 29, 40, 0.92);
+    }
+
+    .lock {
+      width: 92px;
+      height: 92px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 153, 0, 0.34);
+      border-radius: 8px;
+      color: var(--aws-orange);
+      background: var(--aws-orange-soft);
+      font-size: 2.2rem;
+      font-weight: 900;
+    }
+
+    .highlight strong {
+      display: block;
+      color: var(--text);
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.4rem;
+    }
+
+    .card {
+      min-height: 150px;
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+        #121a25;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 153, 0, 0.56);
+      background: #172232;
+    }
+
+    .card-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 0.85rem;
+      border: 1px solid rgba(255, 153, 0, 0.32);
+      border-radius: 8px;
+      color: var(--aws-orange);
+      background: var(--aws-orange-soft);
+      font-size: 0.84rem;
+      font-weight: 900;
+    }
+
+    .card h3 {
+      font-size: 1.05rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .card p {
+      margin-top: 0.45rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .org-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1.4rem;
+    }
+
+    .org-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101722;
+    }
+
+    .org-title {
+      padding: 1rem 1.1rem;
+      border-bottom: 1px solid var(--line);
+      background: #151d29;
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .org-list {
+      display: grid;
+      gap: 0.55rem;
+      padding: 1.1rem;
+      list-style: none;
+    }
+
+    .org-list li {
+      position: relative;
+      padding-left: 1.35rem;
+      color: #dce5f1;
+      font-weight: 800;
+    }
+
+    .org-list li::before {
+      content: "├──";
+      position: absolute;
+      left: 0;
+      color: var(--aws-orange);
+      font-weight: 900;
+    }
+
+    .mfa-flow {
+      display: grid;
+      grid-template-columns: 1fr 42px 1fr 42px 1fr;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1.4rem;
+    }
+
+    .mfa-step {
+      min-height: 130px;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(83, 181, 255, 0.1), transparent),
+        #111925;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .plus {
+      color: var(--aws-orange);
+      font-size: 2rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .policy-box {
+      overflow: hidden;
+      margin-top: 1.4rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #090d13;
+    }
+
+    .code-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: #151d29;
+    }
+
+    .code-title {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    pre {
+      overflow-x: auto;
+      padding: 1.2rem;
+      color: #dce5f1;
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
+    code {
+      font-family: Consolas, Monaco, "Courier New", monospace;
+    }
+
+    .json-key {
+      color: #7dd3fc;
+    }
+
+    .json-string {
+      color: #c8f7df;
+    }
+
+    .json-note {
+      color: #ffd293;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 1.4rem;
+      overflow: hidden;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101722;
+    }
+
+    th,
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+
+    th {
+      color: var(--aws-orange);
+      background: #151d29;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    td {
+      color: #dce5f1;
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.9rem;
+      margin-top: 1.4rem;
+    }
+
+    .benefit {
+      min-height: 86px;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #111925;
+      color: #dce5f1;
+      font-weight: 800;
+    }
+
+    .benefit::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: var(--aws-orange);
+      box-shadow: 0 0 18px rgba(255, 153, 0, 0.5);
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        min-height: auto;
+      }
+
+      .grid,
+      .benefits,
+      .org-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mfa-flow {
+        grid-template-columns: 1fr;
+      }
+
+      .plus {
+        line-height: 1;
+      }
+    }
+
+    @media (max-width: 560px) {
+      nav {
+        justify-content: flex-start;
+        overflow-x: auto;
+      }
+
+      .page {
+        width: min(100% - 1rem, 1180px);
+        padding-top: 1rem;
+      }
+
+      section,
+      .hero-gif {
+        padding: 1rem;
+      }
+
+      .grid,
+      .benefits,
+      .org-grid,
+      .highlight {
+        grid-template-columns: 1fr;
+      }
+
+      .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .card {
+        min-height: auto;
+      }
+
+      .lock {
+        width: 72px;
+        height: 72px;
+      }
+
+      th,
+      td {
+        padding: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav aria-label="Navegação principal">
+    <a href="index.html">Home</a>
+    <a href="ec2.html">EC2</a>
+    <a href="s3.html">S3</a>
+    <a class="active" href="iam.html">IAM</a>
+    <a href="cloud.html">Cloud</a>
+  </nav>
+
+  <main class="page">
+    <header class="hero">
+      <div class="hero-content">
+        <div>
+          <p class="eyebrow">AWS Security Service</p>
+          <h1>AWS IAM</h1>
+          <p class="subtitle">Identity and Access Management</p>
+        </div>
+
+        <div class="hero-gif" aria-label="Animação sobre AWS IAM">
+          <img src="aws_iam_gif.gif" alt="GIF educacional sobre o AWS IAM">
+        </div>
+      </div>
+    </header>
+
+    <section aria-labelledby="o-que-e">
+      <div class="section-header">
+        <h2 id="o-que-e">O que é IAM?</h2>
+        <span class="tag">Visão geral</span>
+      </div>
+      <p class="lead">
+        O IAM é o serviço responsável pelo gerenciamento de identidades e permissões
+        dentro da AWS.
+      </p>
+    </section>
+
+    <section class="highlight" aria-labelledby="menor-privilegio">
+      <div class="lock">IAM</div>
+      <div>
+        <div class="section-header">
+          <h2 id="menor-privilegio">Princípio do Menor Privilégio</h2>
+          <span class="tag">Acesso mínimo</span>
+        </div>
+        <strong>Nenhum usuário possui acesso até que uma permissão seja concedida.</strong>
+      </div>
+    </section>
+
+    <section aria-labelledby="componentes">
+      <div class="section-header">
+        <h2 id="componentes">Componentes do IAM</h2>
+        <span class="tag">Identidades</span>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-icon">USR</div>
+          <h3>Usuários</h3>
+          <p>Users</p>
+        </article>
+        <article class="card">
+          <div class="card-icon">GRP</div>
+          <h3>Grupos</h3>
+          <p>Groups</p>
+        </article>
+        <article class="card">
+          <div class="card-icon">POL</div>
+          <h3>Políticas</h3>
+          <p>Policies</p>
+        </article>
+        <article class="card">
+          <div class="card-icon">ROL</div>
+          <h3>Funções</h3>
+          <p>Roles</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="estrutura">
+      <div class="section-header">
+        <h2 id="estrutura">Estrutura Organizacional</h2>
+        <span class="tag">Permissões por perfil</span>
+      </div>
+      <div class="org-grid">
+        <div class="org-card">
+          <div class="org-title">Administrador</div>
+          <ul class="org-list">
+            <li>EC2</li>
+            <li>S3</li>
+            <li>IAM</li>
+          </ul>
+        </div>
+        <div class="org-card">
+          <div class="org-title">Desenvolvedor</div>
+          <ul class="org-list">
+            <li>EC2</li>
+            <li>S3</li>
+          </ul>
+        </div>
+        <div class="org-card">
+          <div class="org-title">Estagiário</div>
+          <ul class="org-list">
+            <li>Apenas leitura</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="mfa">
+      <div class="section-header">
+        <h2 id="mfa">MFA</h2>
+        <span class="tag">Camadas de segurança</span>
+      </div>
+      <div class="mfa-flow" aria-label="Ilustração de autenticação multifator">
+        <div class="mfa-step">Senha</div>
+        <div class="plus">+</div>
+        <div class="mfa-step">Aplicativo Authenticator</div>
+        <div class="plus">+</div>
+        <div class="mfa-step">Código Temporário</div>
+      </div>
+    </section>
+
+    <section aria-labelledby="politica">
+      <div class="section-header">
+        <h2 id="politica">Exemplo de Política</h2>
+        <span class="tag">JSON</span>
+      </div>
+      <p class="lead">Permissão para leitura de objetos no S3.</p>
+      <div class="policy-box">
+        <div class="code-top">
+          <span class="code-title">s3-read-policy.json</span>
+          <span class="tag">ReadOnly</span>
+        </div>
+        <pre><code>{
+  <span class="json-key">"Version"</span>: <span class="json-string">"2012-10-17"</span>,
+  <span class="json-key">"Statement"</span>: [
+    {
+      <span class="json-key">"Effect"</span>: <span class="json-string">"Allow"</span>,
+      <span class="json-key">"Action"</span>: [
+        <span class="json-string">"s3:GetObject"</span>
+      ],
+      <span class="json-key">"Resource"</span>: <span class="json-string">"arn:aws:s3:::empresa-cloud/*"</span>
+    }
+  ]
+}</code></pre>
+      </div>
+    </section>
+
+    <section aria-labelledby="empresa">
+      <div class="section-header">
+        <h2 id="empresa">Exemplo Empresarial</h2>
+        <span class="tag">Matriz de acesso</span>
+      </div>
+      <table aria-label="Exemplo empresarial de permissões IAM">
+        <thead>
+          <tr>
+            <th>Perfil</th>
+            <th>Permissão</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Administrador</td>
+            <td>Acesso total</td>
+          </tr>
+          <tr>
+            <td>Desenvolvedor</td>
+            <td>EC2 e S3</td>
+          </tr>
+          <tr>
+            <td>RH</td>
+            <td>Documentos</td>
+          </tr>
+          <tr>
+            <td>Estagiário</td>
+            <td>Somente leitura</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="beneficios">
+      <div class="section-header">
+        <h2 id="beneficios">Benefícios</h2>
+        <span class="tag">Valor</span>
+      </div>
+      <div class="benefits">
+        <div class="benefit">Segurança</div>
+        <div class="benefit">Controle de acesso</div>
+        <div class="benefit">Auditoria</div>
+        <div class="benefit">Conformidade</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
